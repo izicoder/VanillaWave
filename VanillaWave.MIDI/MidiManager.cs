@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
 using Melanchall.DryWetMidi.Common;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Multimedia;
 using Melanchall.DryWetMidi.MusicTheory;
+using VanillaWave.Logging;
 
 namespace VanillaWave.MIDI;
 
@@ -94,17 +94,15 @@ public class MidiManager
 
     public static void PrintRealMidiDevices()
     {
-        Console.ForegroundColor = ConsoleColor.DarkGreen;
-        Console.WriteLine("Input devices");
+        Logger.Global.Info("Input Devices");
         foreach (var d in InputDevice.GetAll())
         {
-            Console.WriteLine(d.Name);
+            Logger.Global.Info(d.Name);
         }
-        Console.WriteLine("Output devices");
+        Logger.Global.Info("Output devices");
         foreach (var d in OutputDevice.GetAll())
         {
-            Console.WriteLine(d.Name);
+            Logger.Global.Info(d.Name);
         }
-        Console.ResetColor();
     }
 }

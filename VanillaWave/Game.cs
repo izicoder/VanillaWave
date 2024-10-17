@@ -1,5 +1,4 @@
 ﻿using System.Numerics;
-using Melanchall.DryWetMidi.Common;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Multimedia;
 using Melanchall.DryWetMidi.MusicTheory;
@@ -8,6 +7,7 @@ using Raylib_CSharp.Colors;
 using Raylib_CSharp.Interact;
 using Raylib_CSharp.Rendering;
 using Raylib_CSharp.Windowing;
+using VanillaWave.Logging;
 using VanillaWave.MIDI;
 
 namespace VanillaWave;
@@ -16,15 +16,15 @@ internal class Game
 {
     private Color ClearColor = Color.Blank;
     private bool IsRunning = true;
+    private ConfigFlags InitFlags =
+        ConfigFlags.ResizableWindow
+        | ConfigFlags.BorderlessWindowMode
+        | ConfigFlags.Msaa4XHint
+        | ConfigFlags.VSyncHint;
 
     public void Run(string[] args)
     {
-        Window.SetState(
-            ConfigFlags.ResizableWindow
-                | ConfigFlags.BorderlessWindowMode
-                | ConfigFlags.Msaa4XHint
-                | ConfigFlags.VSyncHint
-        );
+        Window.SetState(InitFlags);
         Window.Init(500, 500, "vanilla");
         Input.SetExitKey(KeyboardKey.Null);
         Init();
@@ -74,7 +74,7 @@ internal class Game
 
     private void Midi_DefaultEvent(MidiEvent midiEvent)
     {
-        Console.WriteLine($"Event {midiEvent.EventType}");
+        Logger.Global.Info($"Event {midiEvent.EventType}");
     }
 
     private void KeyboardMidi_EventReceived(object? sender, MidiEventReceivedEventArgs e)
@@ -83,11 +83,11 @@ internal class Game
         {
             case MidiEventType.NoteOn:
                 var noteon = (NoteOnEvent)e.Event;
-                Console.WriteLine(noteon.GetNoteName());
+                Logger.Global.Info(noteon.GetNoteName());
                 break;
             case MidiEventType.NoteOff:
                 var noteoff = (NoteOffEvent)e.Event;
-                Console.WriteLine(noteoff.GetNoteName());
+                Logger.Global.Info(noteoff.GetNoteName());
                 break;
         }
     }
@@ -96,13 +96,13 @@ internal class Game
 
     private void Midi_NoteOff(NoteInfo note)
     {
-        Console.WriteLine(note);
+        Logger.Global.Info(note);
         activeNotes[note.Name] = (false, note.Velocity);
     }
 
     private void Midi_NoteOn(NoteInfo note)
     {
-        Console.WriteLine(note);
+        Logger.Global.Info(note);
         activeNotes[note.Name] = (true, note.Velocity);
     }
 

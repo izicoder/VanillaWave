@@ -10,6 +10,7 @@
     <ItemGroup>
         <ProjectReference Include="..\FMOD\VanillaWave.FMOD.csproj" />
         <ProjectReference Include="..\VanillaWave.Graphics\VanillaWave.Graphics.csproj" />
+        <ProjectReference Include="..\VanillaWave.Logging\VanillaWave.Logging.csproj" />
         <ProjectReference Include="..\VanillaWave.MIDI\VanillaWave.MIDI.csproj" />
 
     </ItemGroup>
