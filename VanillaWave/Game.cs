@@ -108,9 +108,12 @@ internal class Game
 
     private void Closing()
     {
-        RealInputDevice?.Dispose();
-        RealOutputDevice?.Dispose();
-        KeyboardMidi?.Dispose();
+        AppDomain.CurrentDomain.ProcessExit += (_, _) =>
+        {
+            RealInputDevice?.Dispose();
+            RealOutputDevice?.Dispose();
+            KeyboardMidi?.Dispose();
+        };
     }
 
     private void Update()
@@ -121,11 +124,17 @@ internal class Game
         {
             IsRunning = false;
         }
+
+        if (Input.IsKeyPressed(KeyboardKey.F12))
+        {
+            Window.Maximize();
+        }
     }
 
     private int CurrentMonitor => Window.GetCurrentMonitor();
 
     private Camera3D camera;
+    private List<(Vector2 pos, Color color)> AfterImages = [];
 
     private void Render()
     {
@@ -137,20 +146,38 @@ internal class Game
             int ybase = Window.GetRenderHeight() / 2;
             int xbase = Window.GetRenderWidth() / 12;
             int shift = xbase - (xbase / 2);
-            float bumpfactor =
-                (float)Window.GetRenderHeight() / Window.GetMonitorHeight(CurrentMonitor);
             foreach (var note in activeNotes)
             {
                 if (note.Value.active)
                 {
                     Vector2 notepos = Vector2.Zero;
                     notepos.X = (xbase * (int)note.Key) + shift;
-                    notepos.Y = ybase - note.Value.vel * bumpfactor;
-                    byte velch = (byte)((note.Value.vel / 127.0) * 255);
-                    byte posch = (byte)((((int)note.Key + 1) / 12.0) * 255);
+                    notepos.Y = ybase;
+                    byte velch = (byte)((note.Value.vel / 127f) * 255);
+                    byte posch = (byte)((((int)note.Key + 1) / 12f) * 255);
                     Color notecolor = new(200, velch, posch, 255);
-                    Graphics.DrawCircleV(notepos, (float)(shift / 2.0), notecolor);
+                    AfterImages.Add((notepos, notecolor));
+                    //Graphics.DrawCircleV(notepos, (float)(shift / 2f), notecolor);
                 }
+            }
+
+            Graphics.DrawLine(0, ybase, Window.GetRenderWidth(), ybase, Color.Pink);
+
+            for (int i = 0; i < AfterImages.Count; i++)
+            {
+                Vector2 temppos = AfterImages[i].pos;
+                if (temppos.Y < 0)
+                {
+                    AfterImages.RemoveAt(i);
+                }
+                else
+                {
+                    Color tempcolor = AfterImages[i].color;
+                    Graphics.DrawCircleV(temppos, (float)(shift / 2f), tempcolor);
+                    temppos.Y -= 1;
+                    AfterImages[i] = (temppos, tempcolor);
+                }
+                //Logger.Global.Trace($"count={AfterImages.Count} i={i} y={temppos.Y}");
             }
         }
         Graphics.EndDrawing();
